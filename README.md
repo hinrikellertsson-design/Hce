@@ -15,11 +15,16 @@ status, and shift handover notes update for everyone else looking at the same bo
 
 ## Content decisions carried over from planning
 
-The task content in `supabase/seed.sql` was translated from `Senulisti_v1.md` and
-`Djuphreinsun_Brottfor.md` (the Icelandic drafts — the English `Scene_List_v1.md` /
-`Departure_Deep_Clean.md` / `Manual.pdf` referenced in the original brief were not found
-in Drive, so the Icelandic docs were treated as the source of truth). Five items that
-doc flagged as unresolved were folded in as follows:
+The task content in `supabase/seed.sql` is taken from the authoritative English source
+docs, `Scene_List_v1.md` and `Departure_Deep_Clean.md` (the first version of this seed
+was translated from the Icelandic `Senulisti_v1.md` / `Djuphreinsun_Brottfor.md` drafts
+because the English originals weren't in Drive yet; once they were provided, the seed
+was checked word-for-word against them and updated to match — the two versions turned
+out to already be near-identical in content, just some wording). `Manual.pdf` itself
+still hasn't been provided; the Departure Deep Clean doc notes it was already built
+from every item in it, so nothing from it should be missing. Five items that
+`Scene_List_v1.md`'s own "Notes and Possible Gaps" section flagged as unresolved were
+folded in as follows:
 
 1. **Terrace heaters** (check every 2–4h while in use) → a recurring task in Morning
    Shift and Together Shift, not a single one-off checklist item.

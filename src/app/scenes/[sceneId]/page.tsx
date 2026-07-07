@@ -32,11 +32,11 @@ export default function ScenePage({ params }: { params: Promise<{ sceneId: strin
 
   if (!configured) return <SetupNotice />;
   if (contentLoading || bookingLoading || dataLoading) {
-    return <p className="text-sm text-ink-muted">Loading…</p>;
+    return <p className="text-[13px] text-ink-muted">Loading…</p>;
   }
   if (!booking) {
     return (
-      <p className="text-sm text-ink-muted">
+      <p className="text-[13px] text-ink-muted">
         No current booking yet. Create one under{" "}
         <Link href="/assign" className="text-accent underline">
           Guests &amp; Rooms
@@ -46,7 +46,7 @@ export default function ScenePage({ params }: { params: Promise<{ sceneId: strin
     );
   }
   const view = views.get(sceneId);
-  if (!view) return <p className="text-sm text-ink-muted">Scene not found.</p>;
+  if (!view) return <p className="text-[13px] text-ink-muted">Scene not found.</p>;
 
   const staffName = name || "Staff";
 
@@ -76,15 +76,15 @@ export default function ScenePage({ params }: { params: Promise<{ sceneId: strin
   }
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-6">
       <div>
-        <Link href="/" className="text-xs text-ink-muted hover:text-accent">
+        <Link href="/" className="text-[12px] text-ink-muted hover:text-accent">
           ← Dashboard
         </Link>
-        <div className="flex items-start justify-between gap-4 mt-1">
+        <div className="flex items-start justify-between gap-4 mt-1 pb-4 border-b border-border">
           <div>
-            <h1 className="font-serif text-2xl sm:text-3xl">{view.scene.name}</h1>
-            <p className="text-sm text-ink-muted mt-0.5">
+            <h1 className="text-xl font-semibold">{view.scene.name}</h1>
+            <p className="text-[13px] text-ink-muted mt-0.5">
               {view.scene.subtitle}
               {dayNumber ? ` · Day ${dayNumber} of ${booking.nights}` : ""}
             </p>
@@ -94,7 +94,7 @@ export default function ScenePage({ params }: { params: Promise<{ sceneId: strin
       </div>
 
       {view.sections.length === 0 && (
-        <p className="text-sm text-ink-muted">
+        <p className="text-[13px] text-ink-muted">
           {sceneId === 5
             ? "No rooms are assigned to this booking yet — assign guests to rooms first."
             : "No tasks in this scene."}
@@ -104,7 +104,7 @@ export default function ScenePage({ params }: { params: Promise<{ sceneId: strin
       {view.sections.map((section) => (
         <div key={section.roomId ?? section.section}>
           {section.roomId ? (
-            <div className="mb-2">
+            <div className="mb-2 pb-2 border-b border-border">
               <RoomStatusToggle
                 roomName={section.section}
                 locked={section.locked ?? true}
@@ -112,9 +112,11 @@ export default function ScenePage({ params }: { params: Promise<{ sceneId: strin
               />
             </div>
           ) : (
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-ink-muted mb-2">{section.section}</h2>
+            <h2 className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted mb-2">
+              {section.section}
+            </h2>
           )}
-          <ul className="space-y-2">
+          <ul className="border border-border divide-y divide-border bg-surface">
             {section.plainItems.map((item) => (
               <TaskRow
                 key={item.key}

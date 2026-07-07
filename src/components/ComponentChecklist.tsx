@@ -14,15 +14,15 @@ export function ComponentChecklist({
   const total = instance.items.length;
 
   return (
-    <li className="rounded-xl border border-border bg-surface px-3.5 py-3">
-      <div className="flex items-center justify-between gap-3 mb-1">
+    <li className="px-4 py-3 bg-surface-muted/60">
+      <div className="flex items-center justify-between gap-3 mb-2">
         <div>
-          <p className="text-sm font-medium text-ink">{instance.task.label}</p>
-          {instance.task.note && <p className="text-xs text-ink-muted mt-0.5">{instance.task.note}</p>}
+          <p className="text-[13px] font-medium text-ink">{instance.task.label}</p>
+          {instance.task.note && <p className="text-[12px] text-ink-muted mt-0.5">{instance.task.note}</p>}
         </div>
         <ProgressPill completed={completed} total={total} />
       </div>
-      <ul className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5">
+      <ul className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5">
         {instance.items.map(({ item, completion }) => {
           const done = completion?.completed ?? false;
           return (
@@ -33,7 +33,7 @@ export function ComponentChecklist({
                 className="flex items-center gap-2 text-left w-full group"
               >
                 <span
-                  className={`h-4 w-4 shrink-0 rounded border flex items-center justify-center transition-colors ${
+                  className={`h-3.5 w-3.5 shrink-0 rounded-[3px] border flex items-center justify-center transition-colors ${
                     done ? "bg-success border-success" : "border-ink-muted/50 group-hover:border-accent"
                   }`}
                 >
@@ -49,7 +49,7 @@ export function ComponentChecklist({
                     </svg>
                   )}
                 </span>
-                <span className={`text-xs leading-snug ${done ? "line-through text-ink-muted" : "text-ink"}`}>
+                <span className={`text-[12px] leading-snug ${done ? "line-through text-ink-muted" : "text-ink"}`}>
                   {item.label}
                 </span>
               </button>

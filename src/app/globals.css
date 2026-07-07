@@ -1,52 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --canvas: #f7f4ef;
+  --canvas: #f5f6f6;
   --surface: #ffffff;
-  --surface-muted: #f0ece3;
-  --border: #e3ddd0;
-  --ink: #211d17;
-  --ink-muted: #6b6255;
-  --accent: #9c6b30;
-  --accent-ink: #fffaf2;
-  --success: #3f7d54;
-  --success-soft: #e6efe7;
-  --warning: #b8863a;
-  --warning-soft: #f6ecd9;
-  --danger: #b3503f;
+  --surface-muted: #eef0f1;
+  --border: #dde1e3;
+  --ink: #16191d;
+  --ink-muted: #5b6268;
+  --accent: #2a3f52;
+  --accent-ink: #f5f7f8;
+  --success: #29704f;
+  --success-soft: #eaf2ee;
+  --warning: #93611c;
+  --warning-soft: #f5eee2;
+  --danger: #96342a;
 }
 
 :root[data-theme="dark"] {
-  --canvas: #15130f;
-  --surface: #1d1a15;
-  --surface-muted: #262019;
-  --border: #35301f;
-  --ink: #f3ede0;
-  --ink-muted: #a89a83;
-  --accent: #d1a45c;
-  --accent-ink: #1a1408;
-  --success: #6fae82;
-  --success-soft: #1f2c22;
-  --warning: #d1a45c;
-  --warning-soft: #2c2417;
-  --danger: #d98977;
+  --canvas: #101214;
+  --surface: #17191c;
+  --surface-muted: #1d2023;
+  --border: #2a2e32;
+  --ink: #e8eaec;
+  --ink-muted: #92999f;
+  --accent: #9db4c9;
+  --accent-ink: #10171e;
+  --success: #6fae8a;
+  --success-soft: #17231d;
+  --warning: #c99a53;
+  --warning-soft: #251f14;
+  --danger: #c47e73;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --canvas: #15130f;
-    --surface: #1d1a15;
-    --surface-muted: #262019;
-    --border: #35301f;
-    --ink: #f3ede0;
-    --ink-muted: #a89a83;
-    --accent: #d1a45c;
-    --accent-ink: #1a1408;
-    --success: #6fae82;
-    --success-soft: #1f2c22;
-    --warning: #d1a45c;
-    --warning-soft: #2c2417;
-    --danger: #d98977;
+    --canvas: #101214;
+    --surface: #17191c;
+    --surface-muted: #1d2023;
+    --border: #2a2e32;
+    --ink: #e8eaec;
+    --ink-muted: #92999f;
+    --accent: #9db4c9;
+    --accent-ink: #10171e;
+    --success: #6fae8a;
+    --success-soft: #17231d;
+    --warning: #c99a53;
+    --warning-soft: #251f14;
+    --danger: #c47e73;
   }
 }
 
@@ -65,13 +65,13 @@
   --color-warning-soft: var(--warning-soft);
   --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
-  --font-serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--canvas);
   color: var(--ink);
+  font-feature-settings: "tnum" 1;
 }
 
 ::selection {

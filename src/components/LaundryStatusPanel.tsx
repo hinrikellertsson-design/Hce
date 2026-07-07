@@ -62,34 +62,32 @@ export function LaundryStatusPanel({ bookingId, dayNumber }: { bookingId: string
   const running = status?.is_running ?? false;
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4">
-      <div className="flex items-center justify-between gap-3 mb-3">
-        <h2 className="font-serif text-lg">Laundry</h2>
+    <div className="border border-border bg-surface">
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-border">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Laundry</h2>
         <button
           type="button"
           onClick={toggleRunning}
-          className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-            running ? "border-accent/50 bg-warning-soft text-warning" : "border-border text-ink-muted"
-          }`}
+          className="flex items-center gap-1.5 rounded-[4px] border border-border px-2 py-1 text-[11px] font-medium text-ink-muted hover:border-accent transition-colors"
         >
-          <span className={`h-1.5 w-1.5 rounded-full ${running ? "bg-warning animate-pulse" : "bg-ink-muted/40"}`} />
+          <span className={`h-1.5 w-1.5 rounded-full ${running ? "bg-warning" : "bg-border"}`} />
           {running ? "Running" : "Not running"}
         </button>
       </div>
-      <div className="space-y-2">
+      <div className="p-4 space-y-2">
         <input
           value={whose}
           onChange={(e) => setWhose(e.target.value)}
           onBlur={saveDetails}
           placeholder="Whose laundry / which room"
-          className="w-full rounded-full border border-border bg-canvas px-3.5 py-1.5 text-sm outline-none focus:border-accent"
+          className="w-full rounded-[4px] border border-border bg-canvas px-3 py-1.5 text-[13px] outline-none focus:border-accent"
         />
         <input
           value={note}
           onChange={(e) => setNote(e.target.value)}
           onBlur={saveDetails}
           placeholder="Note (optional)"
-          className="w-full rounded-full border border-border bg-canvas px-3.5 py-1.5 text-sm outline-none focus:border-accent"
+          className="w-full rounded-[4px] border border-border bg-canvas px-3 py-1.5 text-[13px] outline-none focus:border-accent"
         />
       </div>
     </div>

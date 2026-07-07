@@ -33,14 +33,14 @@ export default function DashboardPage() {
   });
 
   if (!configured) return <SetupNotice />;
-  if (contentLoading || bookingLoading) return <p className="text-sm text-ink-muted">Loading…</p>;
+  if (contentLoading || bookingLoading) return <p className="text-[13px] text-ink-muted">Loading…</p>;
 
   if (!booking) {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-8 text-center">
-        <h1 className="font-serif text-2xl mb-2">No booking yet</h1>
-        <p className="text-sm text-ink-muted mb-4">Create a booking and assign guests to rooms to get started.</p>
-        <Link href="/assign" className="inline-block rounded-full bg-ink text-canvas px-5 py-2 text-sm font-medium">
+      <div className="border border-border bg-surface p-8 text-center">
+        <h1 className="text-lg font-semibold mb-1">No booking yet</h1>
+        <p className="text-[13px] text-ink-muted mb-4">Create a booking and assign guests to rooms to get started.</p>
+        <Link href="/assign" className="inline-block rounded-[4px] bg-ink text-canvas px-4 py-1.5 text-[13px] font-medium">
           Set up a booking
         </Link>
       </div>
@@ -73,17 +73,17 @@ export default function DashboardPage() {
   const roomSections = booking.status === "active" ? (views.get(5)?.sections.filter((s) => s.roomId) ?? []) : [];
 
   return (
-    <div className="space-y-8">
-      <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <div className="space-y-6">
+      <div className="border border-border bg-surface px-5 py-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-wide text-ink-muted">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
               {booking.status === "upcoming" && "Upcoming booking"}
               {booking.status === "active" && `Day ${booking.current_day} of ${booking.nights}`}
               {booking.status === "departed" && "Departed — deep clean in progress"}
             </p>
-            <h1 className="font-serif text-2xl sm:text-3xl mt-1">{booking.group_name}</h1>
-            <p className="text-sm text-ink-muted mt-1">
+            <h1 className="text-xl font-semibold mt-1">{booking.group_name}</h1>
+            <p className="text-[13px] text-ink-muted mt-1">
               {guests.length} guest{guests.length === 1 ? "" : "s"} · Arriving{" "}
               {new Date(booking.arrival_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })} ·{" "}
               {booking.nights} night{booking.nights === 1 ? "" : "s"}
@@ -91,28 +91,28 @@ export default function DashboardPage() {
           </div>
           <div className="flex flex-col items-end gap-2">
             {!dataLoading && (
-              <p className="text-sm text-ink-muted">
-                <span className="font-medium text-ink">{totalOutstanding}</span> task
+              <p className="text-[13px] text-ink-muted">
+                <span className="font-medium text-ink tabular-nums">{totalOutstanding}</span> task
                 {totalOutstanding === 1 ? "" : "s"} outstanding
               </p>
             )}
             {booking.status === "upcoming" && (
-              <button onClick={startStay} className="rounded-full bg-ink text-canvas px-4 py-1.5 text-sm font-medium">
+              <button onClick={startStay} className="rounded-[4px] bg-ink text-canvas px-3.5 py-1.5 text-[13px] font-medium">
                 Start stay — Day 1
               </button>
             )}
             {booking.status === "active" && booking.current_day < booking.nights && (
-              <button onClick={advanceDay} className="rounded-full bg-ink text-canvas px-4 py-1.5 text-sm font-medium">
+              <button onClick={advanceDay} className="rounded-[4px] bg-ink text-canvas px-3.5 py-1.5 text-[13px] font-medium">
                 Advance to Day {booking.current_day + 1}
               </button>
             )}
             {booking.status === "active" && (
-              <button onClick={markDeparted} className="text-xs text-ink-muted underline">
+              <button onClick={markDeparted} className="text-[12px] text-ink-muted underline underline-offset-2">
                 Guests have departed
               </button>
             )}
             {booking.status === "departed" && (
-              <Link href="/assign" className="rounded-full bg-ink text-canvas px-4 py-1.5 text-sm font-medium">
+              <Link href="/assign" className="rounded-[4px] bg-ink text-canvas px-3.5 py-1.5 text-[13px] font-medium">
                 Set up next booking
               </Link>
             )}
@@ -122,10 +122,10 @@ export default function DashboardPage() {
 
       {roomSections.length > 0 && (
         <div>
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-ink-muted mb-2">Rooms today</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <h2 className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted mb-2">Rooms today</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-border border border-border">
             {roomSections.map((s) => (
-              <div key={s.roomId} className="rounded-xl border border-border bg-surface px-3 py-2.5">
+              <div key={s.roomId} className="bg-surface px-3 py-2.5">
                 <RoomStatusToggle
                   roomName={s.section}
                   locked={s.locked ?? true}
@@ -145,15 +145,15 @@ export default function DashboardPage() {
       )}
 
       <div>
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-ink-muted mb-2">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted mb-2">
           {booking.status === "upcoming" && "Before arrival"}
           {booking.status === "active" && "Today's scenes"}
           {booking.status === "departed" && "Departure checklist"}
         </h2>
         {dataLoading ? (
-          <p className="text-sm text-ink-muted">Loading…</p>
+          <p className="text-[13px] text-ink-muted">Loading…</p>
         ) : (
-          <div className="grid sm:grid-cols-2 gap-2.5">
+          <div className="border border-border divide-y divide-border bg-surface">
             {sceneIds.map((id) => {
               const v = views.get(id);
               if (!v) return null;

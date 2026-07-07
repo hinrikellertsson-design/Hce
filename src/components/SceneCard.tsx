@@ -20,17 +20,16 @@ export function SceneCard({
   return (
     <Link
       href={href}
-      className={`block rounded-2xl border px-4 py-3.5 transition-colors hover:border-accent ${
-        done ? "border-success/30 bg-success-soft" : "border-border bg-surface"
-      }`}
+      className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-surface-muted transition-colors"
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="min-w-0 flex items-center gap-2.5">
+        <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${done ? "bg-success" : "bg-border"}`} />
         <div className="min-w-0">
-          <p className="font-medium text-sm text-ink truncate">{name}</p>
-          {subtitle && <p className="text-xs text-ink-muted truncate">{subtitle}</p>}
+          <p className="text-[13px] text-ink truncate">{name}</p>
+          {subtitle && <p className="text-[12px] text-ink-muted truncate">{subtitle}</p>}
         </div>
-        <ProgressPill completed={completed} total={total} />
       </div>
+      <ProgressPill completed={completed} total={total} />
     </Link>
   );
 }

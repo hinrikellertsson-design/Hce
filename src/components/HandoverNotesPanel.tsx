@@ -62,40 +62,44 @@ export function HandoverNotesPanel({ bookingId, dayNumber }: { bookingId: string
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4">
-      <h2 className="font-serif text-lg mb-3">Handover Notes</h2>
-      <form onSubmit={submit} className="flex gap-2 mb-4">
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Leave a note for the next shift…"
-          className="flex-1 rounded-full border border-border bg-canvas px-3.5 py-2 text-sm outline-none focus:border-accent"
-        />
-        <button
-          type="submit"
-          disabled={submitting || !message.trim()}
-          className="rounded-full bg-ink text-canvas px-4 py-2 text-sm font-medium disabled:opacity-40"
-        >
-          Post
-        </button>
-      </form>
-      {loading ? (
-        <p className="text-sm text-ink-muted">Loading…</p>
-      ) : notes.length === 0 ? (
-        <p className="text-sm text-ink-muted">No notes yet.</p>
-      ) : (
-        <ul className="space-y-3 max-h-64 overflow-y-auto">
-          {notes.map((note) => (
-            <li key={note.id} className="text-sm">
-              <p className="text-ink">{note.message}</p>
-              <p className="text-xs text-ink-muted mt-0.5">
-                {note.author} · {timeAgo(note.created_at)}
-                {note.day_number ? ` · Day ${note.day_number}` : ""}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="border border-border bg-surface">
+      <div className="px-4 py-2.5 border-b border-border">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Handover Notes</h2>
+      </div>
+      <div className="p-4">
+        <form onSubmit={submit} className="flex gap-2 mb-4">
+          <input
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Leave a note for the next shift…"
+            className="flex-1 rounded-[4px] border border-border bg-canvas px-3 py-1.5 text-[13px] outline-none focus:border-accent"
+          />
+          <button
+            type="submit"
+            disabled={submitting || !message.trim()}
+            className="rounded-[4px] bg-ink text-canvas px-3.5 py-1.5 text-[13px] font-medium disabled:opacity-40"
+          >
+            Post
+          </button>
+        </form>
+        {loading ? (
+          <p className="text-[13px] text-ink-muted">Loading…</p>
+        ) : notes.length === 0 ? (
+          <p className="text-[13px] text-ink-muted">No notes yet.</p>
+        ) : (
+          <ul className="space-y-3 max-h-64 overflow-y-auto">
+            {notes.map((note) => (
+              <li key={note.id} className="text-[13px]">
+                <p className="text-ink">{note.message}</p>
+                <p className="text-[11px] text-ink-muted mt-0.5">
+                  {note.author} · {timeAgo(note.created_at)}
+                  {note.day_number ? ` · Day ${note.day_number}` : ""}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

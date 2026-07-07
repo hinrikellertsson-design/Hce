@@ -78,6 +78,15 @@ export async function fetchBooking(bookingId: string): Promise<Booking | null> {
   return data;
 }
 
+// All bookings (active, upcoming, and departed), most recently created first — used
+// by the bookings list/switcher so more than one booking can exist at a time.
+export async function fetchAllBookings(): Promise<Booking[]> {
+  const supabase = requireSupabase();
+  const { data, error } = await supabase.from("bookings").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function createBooking(input: {
   groupName: string;
   bookingReference?: string;
@@ -104,6 +113,28 @@ export async function createBooking(input: {
 export async function setBookingStatus(bookingId: string, status: BookingStatus): Promise<void> {
   const supabase = requireSupabase();
   const { error } = await supabase.from("bookings").update({ status }).eq("id", bookingId);
+  if (error) throw error;
+}
+
+export async function updateBooking(
+  bookingId: string,
+  patch: { groupName?: string; bookingReference?: string | null; arrivalDate?: string; nights?: number }
+): Promise<void> {
+  const supabase = requireSupabase();
+  const update: Partial<Booking> = {};
+  if (patch.groupName !== undefined) update.group_name = patch.groupName;
+  if (patch.bookingReference !== undefined) update.booking_reference = patch.bookingReference;
+  if (patch.arrivalDate !== undefined) update.arrival_date = patch.arrivalDate;
+  if (patch.nights !== undefined) update.nights = patch.nights;
+  const { error } = await supabase.from("bookings").update(update).eq("id", bookingId);
+  if (error) throw error;
+}
+
+// Cascades to that booking's guests, room-day statuses, task/component completions,
+// handover notes, and laundry status (all FKs are ON DELETE CASCADE) — irreversible.
+export async function deleteBooking(bookingId: string): Promise<void> {
+  const supabase = requireSupabase();
+  const { error } = await supabase.from("bookings").delete().eq("id", bookingId);
   if (error) throw error;
 }
 

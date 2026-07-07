@@ -20,7 +20,15 @@ const PHASE_SCENES: Record<BookingStatus, number[]> = {
 
 export default function DashboardPage() {
   const { content, loading: contentLoading, configured } = useStaticContent();
-  const { booking, guests, occupiedRoomIds, loading: bookingLoading, refresh: refreshBooking } = useCurrentBooking();
+  const {
+    booking,
+    bookings,
+    guests,
+    occupiedRoomIds,
+    loading: bookingLoading,
+    refresh: refreshBooking,
+    selectBooking,
+  } = useCurrentBooking();
 
   const sceneIds = booking ? PHASE_SCENES[booking.status] : [];
   const dayNumber = booking && booking.status === "active" ? booking.current_day : null;
@@ -74,6 +82,22 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {bookings.length > 1 && (
+        <div className="flex items-center gap-2">
+          <label className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Viewing</label>
+          <select
+            value={booking.id}
+            onChange={(e) => selectBooking(e.target.value)}
+            className="rounded-[4px] border border-border bg-surface px-2 py-1 text-[13px] outline-none focus:border-accent"
+          >
+            {bookings.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.group_name} · {b.status}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className="border border-border bg-surface px-5 py-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>

@@ -54,8 +54,6 @@ export default function AssignPage() {
     }
   }
 
-  const assignedRoomIds = new Set(guests.map((g) => g.room_id).filter(Boolean));
-
   return (
     <div className="space-y-8">
       <div>
@@ -130,7 +128,7 @@ export default function AssignPage() {
                 >
                   <option value="">Unassigned</option>
                   {content.rooms.map((room) => (
-                    <option key={room.id} value={room.id} disabled={assignedRoomIds.has(room.id) && guest.room_id !== room.id}>
+                    <option key={room.id} value={room.id}>
                       {room.name}
                     </option>
                   ))}
@@ -162,7 +160,7 @@ export default function AssignPage() {
             >
               <option value="">Unassigned</option>
               {content.rooms.map((room) => (
-                <option key={room.id} value={room.id} disabled={assignedRoomIds.has(room.id)}>
+                <option key={room.id} value={room.id}>
                   {room.name}
                 </option>
               ))}

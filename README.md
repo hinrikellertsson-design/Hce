@@ -72,30 +72,37 @@ npm run dev
 
 Open http://localhost:3000. Go to **Guests & Rooms** to create the first booking.
 
-### 4. Deploy
+### 4. (Optional) Set a shared staff PIN
+
+Add `NEXT_PUBLIC_STAFF_PIN` to `.env.local` (any digits/text you like) to put a PIN
+prompt in front of the whole app. Leave it unset to skip this entirely — see the
+security note below for what it does and doesn't protect against.
+
+### 5. Deploy
 
 Push this repo to GitHub (or use the branch it's already on) and import it into
-[Vercel](https://vercel.com/new). Add the same two environment variables in the Vercel
+[Vercel](https://vercel.com/new). Add the same environment variables in the Vercel
 project settings, deploy, and share the resulting URL with staff.
 
 ## Security note (read before relying on this for real bookings)
 
-There is no staff login. Anyone with the link can read and write everything —
-matching how the paper checklist worked, and keeping setup to "share a link." The
-`completed_by` / note author fields are just a name staff type in once (stored in that
-device's browser, see `useStaffName`), not an authenticated identity. If this becomes a
-problem, add Supabase Auth (e.g. a shared property PIN or per-staff email login) and
-tighten the row-level-security policies in `supabase/schema.sql` — they're currently
-`using (true)` for every write.
+There is no staff login. Anyone with the link — and, if set, the shared PIN — can read
+and write everything, matching how the paper checklist worked and keeping setup to
+"share a link." The `completed_by` / note author fields are just a name staff type in
+once (stored in that device's browser, see `useStaffName`), not an authenticated
+identity.
+
+The optional `NEXT_PUBLIC_STAFF_PIN` (`src/components/PinGate.tsx`) is a speed bump, not
+real access control: it's a client-side check, the PIN value ships inside the public
+JavaScript bundle same as the Supabase anon key, and the Supabase row-level-security
+policies in `supabase/schema.sql` are still `using (true)` for every write regardless of
+the PIN. It stops someone from stumbling onto the link and poking around, or a phone
+being picked up by a guest — it does not stop a determined person who bothers to look at
+the page source. If real access control matters later, add Supabase Auth (per-staff
+login) and rewrite those RLS policies to check `auth.uid()`.
 
 ## Known limitations / next steps
 
-- Only one "current" booking is tracked at a time (whichever is `active`, else
-  `upcoming`, else the most recent `departed`). If the next booking is created before
-  the previous one's Scene 0 deep clean is finished, the deep-clean checklist is no
-  longer reachable from the dashboard. Fine for the common case (finish deep clean,
-  then set up the next booking); revisit if double-booked turnarounds turn out to be
-  common.
 - Real-time sync uses Supabase Realtime (websockets), not polling.
 - Scene 0 (Departure / Deep Clean) and the Cheese Platter / Snack Basket components are
   fully seeded and functional through the same generic checklist screen as the daily

@@ -22,7 +22,7 @@ export function ComponentChecklist({
         </div>
         <ProgressPill completed={completed} total={total} />
       </div>
-      <ul className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-3">
         {instance.items.map(({ item, completion }) => {
           const done = completion?.completed ?? false;
           return (
@@ -30,7 +30,7 @@ export function ComponentChecklist({
               <button
                 type="button"
                 onClick={() => onToggleItem(item.id, !done)}
-                className="flex items-center gap-2 text-left w-full group"
+                className="flex items-center gap-2 text-left w-full py-1.5 group"
               >
                 <span
                   className={`h-3.5 w-3.5 shrink-0 rounded-[3px] border flex items-center justify-center transition-colors ${

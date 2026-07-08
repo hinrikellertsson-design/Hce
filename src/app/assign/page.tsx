@@ -156,7 +156,7 @@ export default function AssignPage() {
                       <button
                         type="button"
                         onClick={() => setEditingId(null)}
-                        className="text-[12px] text-ink-muted px-1"
+                        className="text-[12px] text-ink-muted px-2 py-1.5"
                       >
                         Cancel
                       </button>
@@ -185,14 +185,14 @@ export default function AssignPage() {
                       <button
                         type="button"
                         onClick={() => startEdit(b)}
-                        className="text-[12px] text-ink-muted hover:text-ink px-1"
+                        className="text-[12px] text-ink-muted hover:text-ink px-2 py-1.5"
                       >
                         Edit
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDelete(b)}
-                        className="text-[12px] text-danger px-1"
+                        className="text-[12px] text-danger px-2 py-1.5"
                       >
                         Delete
                       </button>
@@ -273,7 +273,7 @@ export default function AssignPage() {
                 <button
                   type="button"
                   onClick={() => removeGuest(guest.id).then(refresh)}
-                  className="text-[12px] text-danger px-2"
+                  className="text-[12px] text-danger px-2 py-1.5"
                   aria-label={`Remove ${guest.name}`}
                 >
                   Remove

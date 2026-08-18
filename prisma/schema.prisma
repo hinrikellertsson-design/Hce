@@ -1,0 +1,112 @@
+// Prisma schema fyrir kennsluumsjónarkerfi (frumgerð / prototype)
+// ATH: Þetta er frumgerð með uppspunnum sýnigögnum — ekki tilbúin fyrir
+// raunveruleg persónugreinanleg gögn nemenda fyrr en persónuverndarþættir
+// (sjá TODO neðst) hafa verið útfærðir.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite hefur ekki innbyggðan stuðning við enum í Prisma, svo hlutverk og
+// staða skila eru geymd sem strengir og takmörkuð í TS-kóða (sjá src/lib/types.ts).
+// Role: "TEACHER" | "STUDENT"
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String
+  createdAt    DateTime @default(now())
+
+  // Kennari: áfangar sem viðkomandi kennir
+  coursesTaught Course[]     @relation("CourseTeacher")
+  // Nemandi: skráningar í áfanga
+  enrollments   Enrollment[]
+  // Nemandi: skil sem viðkomandi hefur sent inn
+  submissions   Submission[]
+  // Kennari: endurgjöf sem viðkomandi hefur skrifað
+  feedbackGiven Feedback[]
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  teacherId String
+  teacher   User   @relation("CourseTeacher", fields: [teacherId], references: [id])
+
+  enrollments Enrollment[]
+  assignments Assignment[]
+}
+
+model Enrollment {
+  id       String @id @default(cuid())
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  studentId String
+  student  User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, studentId])
+}
+
+model Assignment {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  submissions Submission[]
+}
+
+// SubmissionStatus: "SUBMITTED" | "GRADED"
+
+model Submission {
+  id        String   @id @default(cuid())
+  content   String
+  status    String   @default("SUBMITTED")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  feedback Feedback?
+
+  @@unique([assignmentId, studentId])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  comment   String
+  grade     String?
+  createdAt DateTime @default(now())
+
+  submissionId String     @unique
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  teacherId    String
+  teacher      User       @relation(fields: [teacherId], references: [id])
+}
+
+// TODO (persónuvernd — sjá einnig PERSONUVERND.md):
+// - Skýr lagagrundvöllur fyrir vinnslu (samningur/lögbundin skylda) og samþykki
+//   forsjáraðila fyrir ólögráða nemendur.
+// - Vinnslusamningur (DPA) við hýsingaraðila og gagnaver innan EES.
+// - Aðgangsstýringar/audit log á hverja fletta/breytingu á nemendagögnum.
+// - Varðveislutími gagna og ferli til að eyða/afhenda gögn (réttur til eyðingar/
+//   afrits skv. persónuverndarlögum).
+// - Dulkóðun gagna í hvíld og flutningi, öryggisafritun.

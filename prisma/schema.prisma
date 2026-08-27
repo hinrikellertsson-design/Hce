@@ -1,0 +1,81 @@
+// Prisma schema fyrir bókunarkerfi MK matreiðslu- og þjónustudeildar
+// docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MealType {
+  LUNCH
+  DINNER
+}
+
+enum SittingStatus {
+  OPEN
+  CLOSED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+/// Ein æfing (hádegis- eða kvöldverður) sem hægt er að bóka sæti á.
+model Sitting {
+  id               String        @id @default(cuid())
+  date             DateTime
+  mealType         MealType
+  title            String
+  menuDescription  String?
+  maxSeats         Int
+  pricePerSeat     Int // krónur, heil tala til að forðast fljótandi kommu í peningum
+  status           SittingStatus @default(OPEN)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  bookings Booking[]
+
+  @@index([date])
+}
+
+/// Bókun eins gests/hóps á tiltekinni æfingu.
+model Booking {
+  id             String        @id @default(cuid())
+  sittingId      String
+  sitting        Sitting       @relation(fields: [sittingId], references: [id], onDelete: Cascade)
+  name           String
+  email          String
+  phone          String
+  partySize      Int
+  notes          String?
+  status         BookingStatus @default(CONFIRMED)
+  isPaid         Boolean       @default(false)
+  cancelToken    String        @unique @default(cuid())
+  reminderSentAt DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([sittingId])
+  @@index([email])
+}
+
+/// Stjórnandi sem getur skráð sig inn á /admin.
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+/// Stakur lykill/gildi stillingatafla — greiðsluupplýsingar o.fl. sem
+/// starfsfólk getur breytt án kóðabreytinga.
+model Settings {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

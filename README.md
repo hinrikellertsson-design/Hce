@@ -63,12 +63,7 @@ yfir hámarkið.
    ```bash
    npm install
    npx prisma migrate dev
-   npx prisma db seed
    ```
-
-   Seed-skriftan býr til fyrsta stjórnandann úr `ADMIN_EMAIL`/
-   `ADMIN_PASSWORD` (sjálfgefið `admin@mk.is` / `breyttu-mer-strax` ef
-   `ADMIN_PASSWORD` er ekki sett — **skiptu um lykilorð sem fyrst**).
 
 4. Keyra þróunarþjón:
 
@@ -79,6 +74,13 @@ yfir hámarkið.
    Vefurinn er þá á `http://localhost:3000`, stjórnborðið á
    `http://localhost:3000/admin`.
 
+5. Fyrsti stjórnandinn er stofnaður á vefnum sjálfum — engin skipanalína
+   nauðsynleg. Farðu á `http://localhost:3000/admin/setup` og fylltu út
+   netfang og lykilorð. Síðan lokar sjálfkrafa á sig eftir að fyrsti
+   aðgangurinn er stofnaður — hún vísar þá áfram á innskráninguna. Ef þú
+   vilt frekar nota skipanalínu er `npx prisma db seed` (les `ADMIN_EMAIL`/
+   `ADMIN_PASSWORD` úr `.env`) til staðar sem valkostur.
+
    Ef `RESEND_API_KEY` er ekki sett birtast tölvupóstar í console-glugganum
    í stað þess að vera sendir — hentugt fyrir þróun.
 
@@ -86,9 +88,10 @@ yfir hámarkið.
 
 1. **Gagnagrunnur.** Búðu til Postgres gagnagrunn (t.d. Vercel Postgres eða
    Neon) og settu `DATABASE_URL` sem umhverfisbreytu í Vercel-verkefninu.
-   Keyrðu síðan `npx prisma migrate deploy` (t.d. sem hluta af build-skrefi
-   eða handvirkt) til að setja upp töflurnar, og `npx prisma db seed` til að
-   búa til fyrsta stjórnandann.
+   Build-skrefið (`prisma migrate deploy && next build`, sjá `package.json`)
+   setur sjálfkrafa upp allar töflur í hverri byggingu — engin handvirk
+   skipun nauðsynleg. Farðu svo á `/admin/setup` á vefnum eftir að hann er
+   kominn í loftið til að búa til fyrsta stjórnandann (sjá að ofan).
 2. **Resend.** Búðu til aðgang á [resend.com](https://resend.com), settu
    `RESEND_API_KEY`. Staðfestu sendingarlén skólans (t.d. `mk.is` eða
    undirlén eins og `bokanir.mk.is`) með DNS-færslunum sem Resend gefur upp

@@ -1,0 +1,50 @@
+"use client";
+
+import { useTransition } from "react";
+import { adminCancelBooking, sendReminderNow, toggleBookingPaid } from "@/app/actions/admin-bookings";
+
+export function TogglePaidButton({ bookingId, isPaid }: { bookingId: string; isPaid: boolean }) {
+  const [isPending, startTransition] = useTransition();
+  return (
+    <button
+      type="button"
+      disabled={isPending}
+      onClick={() => startTransition(() => toggleBookingPaid(bookingId))}
+      className="text-gold-dark hover:underline disabled:opacity-50"
+    >
+      {isPaid ? "Merkja ógreitt" : "Merkja greitt"}
+    </button>
+  );
+}
+
+export function SendReminderButton({ bookingId }: { bookingId: string }) {
+  const [isPending, startTransition] = useTransition();
+  return (
+    <button
+      type="button"
+      disabled={isPending}
+      onClick={() => startTransition(() => sendReminderNow(bookingId))}
+      className="text-gold-dark hover:underline disabled:opacity-50"
+    >
+      Senda áminningu
+    </button>
+  );
+}
+
+export function CancelBookingButton({ bookingId }: { bookingId: string }) {
+  const [isPending, startTransition] = useTransition();
+  return (
+    <button
+      type="button"
+      disabled={isPending}
+      onClick={() => {
+        if (confirm("Afbóka þessa bókun? Gestur fær tilkynningu í tölvupósti.")) {
+          startTransition(() => adminCancelBooking(bookingId));
+        }
+      }}
+      className="text-red-700 hover:underline disabled:opacity-50"
+    >
+      Afbóka
+    </button>
+  );
+}

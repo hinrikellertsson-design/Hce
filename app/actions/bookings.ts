@@ -25,6 +25,7 @@ const bookingSchema = z.object({
     .max(20),
   partySize: z.coerce.number().int().min(1, "Fjöldi verður að vera a.m.k. 1").max(50),
   notes: z.string().trim().max(500).optional().or(z.literal("")),
+  marketingOptIn: z.coerce.boolean().optional(),
 });
 
 export type CreateBookingState = {
@@ -66,6 +67,7 @@ export async function createBooking(
     phone: formData.get("phone"),
     partySize: formData.get("partySize"),
     notes: formData.get("notes") ?? "",
+    marketingOptIn: formData.get("marketingOptIn"),
   };
 
   const parsed = bookingSchema.safeParse(raw);
@@ -109,6 +111,7 @@ export async function createBooking(
           phone: data.phone,
           partySize: data.partySize,
           notes: data.notes || null,
+          marketingOptIn: data.marketingOptIn ?? false,
           ip,
         },
         include: { sitting: true },

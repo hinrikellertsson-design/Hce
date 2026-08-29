@@ -59,6 +59,7 @@ model Booking {
   cancelToken    String        @unique @default(cuid())
   reminderSentAt DateTime?
   ip             String? // notað til að takmarka fjölda bókana frá sömu nettengingu (spam-vörn)
+  marketingOptIn Boolean       @default(false) // gestur hakaði við "já takk" fyrir fréttabréf
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 

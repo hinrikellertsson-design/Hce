@@ -141,6 +141,18 @@ export function BookingForm({ sittingId, available }: { sittingId: string; avail
         />
       </div>
 
+      <div className="flex items-start gap-2.5">
+        <input
+          id="marketingOptIn"
+          name="marketingOptIn"
+          type="checkbox"
+          className="mt-0.5 h-4 w-4 rounded border-line text-gold focus:ring-gold"
+        />
+        <label htmlFor="marketingOptIn" className="text-sm text-muted">
+          Já, ég vil fá fréttir og tilboð um komandi æfingar í tölvupósti
+        </label>
+      </div>
+
       <SubmitButton disabled={available <= 0} />
     </form>
   );

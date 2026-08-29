@@ -52,6 +52,7 @@ export default async function AdminSittingDetailPage({ params }: PageProps<"/adm
               menuDescription: sitting.menuDescription ?? "",
               maxSeats: sitting.maxSeats,
               pricePerSeat: sitting.pricePerSeat,
+              paymentReference: sitting.paymentReference ?? "",
             }}
           />
         </div>

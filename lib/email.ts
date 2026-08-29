@@ -6,6 +6,7 @@ type SittingInfo = {
   mealType: "LUNCH" | "DINNER";
   title: string;
   pricePerSeat: number;
+  paymentReference?: string | null;
 };
 
 type BookingInfo = {
@@ -97,6 +98,14 @@ export async function sendBookingReceivedEmail(sitting: SittingInfo, booking: Bo
   await sendEmail(to, `Bókun móttekin — ${sitting.title}`, html);
 }
 
+function applyTemplateTokens(text: string, sitting: SittingInfo, booking: BookingInfo) {
+  return text
+    .replaceAll("{fjöldi}", String(booking.partySize))
+    .replaceAll("{verð}", formatKronur(sitting.pricePerSeat))
+    .replaceAll("{samtals}", formatKronur(sitting.pricePerSeat * booking.partySize))
+    .replaceAll("{tilvísun}", sitting.paymentReference ?? "");
+}
+
 export async function sendPaymentReminderEmail(
   sitting: SittingInfo,
   booking: BookingInfo,
@@ -107,6 +116,7 @@ export async function sendPaymentReminderEmail(
   bankKennitala: string
 ) {
   const cancelUrl = `${getSiteUrl()}/bokun/${booking.cancelToken}/hafna`;
+  const instructions = applyTemplateTokens(paymentInstructions, sitting, booking);
   const bankHtml = bankAccount
     ? `
       <table style="width: 100%; border-collapse: collapse; margin: 16px 0; background: #f7f3ec; border-radius: 6px;">
@@ -122,7 +132,7 @@ export async function sendPaymentReminderEmail(
       <p>Viðburðurinn þinn er eftir viku — hér er staðfesting bókunarinnar og greiðsluupplýsingar.</p>
       ${sittingDetailsHtml(sitting, booking)}
       ${bankHtml}
-      <p>${paymentInstructions}</p>
+      <p>${instructions}</p>
       <p style="margin-top: 24px; font-size: 13px; color: #6b6558;">
         Þarftu að afbóka? <a href="${cancelUrl}" style="color: #7a4b1f;">Smelltu hér til að afbóka</a>.
       </p>

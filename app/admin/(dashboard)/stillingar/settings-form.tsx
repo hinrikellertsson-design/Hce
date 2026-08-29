@@ -73,6 +73,16 @@ export function SettingsForm({ settings }: { settings: SettingsMap }) {
         <label htmlFor="paymentInstructions" className="block text-sm font-medium text-ink">
           Texti í greiðslutölvupósti
         </label>
+        <p className="mt-1 text-xs text-muted">
+          Þessi texti fer í hvern greiðslutölvupóst. Þú getur notað{" "}
+          <code>{"{fjöldi}"}</code>, <code>{"{verð}"}</code>,{" "}
+          <code>{"{samtals}"}</code> og <code>{"{tilvísun}"}</code> í
+          textanum — kerfið skiptir þeim sjálfkrafa út fyrir réttar tölur úr
+          hverri bókun (t.d. &bdquo;Upphæð {"{verð}"} á mann, samtals{" "}
+          {"{samtals}"} fyrir hópinn, merkið greiðsluna með {"{tilvísun}"}
+          &ldquo;). Tilvísunin (t.d. HÆ01) er stillt fyrir hverja æfingu fyrir
+          sig undir „Breyta æfingu&ldquo;.
+        </p>
         <textarea
           id="paymentInstructions"
           name="paymentInstructions"

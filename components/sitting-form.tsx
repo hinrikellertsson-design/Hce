@@ -26,6 +26,7 @@ export type SittingDefaults = {
   menuDescription?: string;
   maxSeats?: number;
   pricePerSeat?: number;
+  paymentReference?: string;
 };
 
 export function SittingForm({
@@ -146,6 +147,22 @@ export function SittingForm({
           defaultValue={defaults?.menuDescription}
           className="mt-1.5 w-full rounded-lg border border-line px-3.5 py-2.5 text-sm outline-none focus:border-gold"
         />
+      </div>
+
+      <div>
+        <label htmlFor="paymentReference" className="block text-sm font-medium text-ink">
+          Skýring við greiðslu <span className="text-muted">(valfrjálst)</span>
+        </label>
+        <input
+          id="paymentReference"
+          name="paymentReference"
+          defaultValue={defaults?.paymentReference}
+          placeholder="T.d. HÆ01"
+          className="mt-1.5 w-full rounded-lg border border-line px-3.5 py-2.5 text-sm outline-none focus:border-gold"
+        />
+        <p className="mt-1 text-xs text-muted">
+          Notaðu <code>{"{tilvísun}"}</code> í greiðslutextanum undir Stillingum svo þessi skýring birtist sjálfkrafa í greiðslupóstinum fyrir þessa æfingu.
+        </p>
       </div>
 
       <SubmitButton label={submitLabel} />

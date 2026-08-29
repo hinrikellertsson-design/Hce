@@ -12,6 +12,7 @@ const sittingSchema = z.object({
   menuDescription: z.string().trim().max(2000).optional().or(z.literal("")),
   maxSeats: z.coerce.number().int().min(1, "Þarf að vera a.m.k. 1").max(1000),
   pricePerSeat: z.coerce.number().int().min(0, "Verð má ekki vera neikvætt"),
+  paymentReference: z.string().trim().max(40).optional().or(z.literal("")),
 });
 
 export type SittingFormState = {
@@ -28,6 +29,7 @@ async function parseSittingForm(formData: FormData) {
     menuDescription: formData.get("menuDescription") ?? "",
     maxSeats: formData.get("maxSeats"),
     pricePerSeat: formData.get("pricePerSeat"),
+    paymentReference: formData.get("paymentReference") ?? "",
   });
 }
 
@@ -57,6 +59,7 @@ export async function createSitting(_prevState: SittingFormState, formData: Form
       menuDescription: data.menuDescription || null,
       maxSeats: data.maxSeats,
       pricePerSeat: data.pricePerSeat,
+      paymentReference: data.paymentReference || null,
     },
   });
 
@@ -86,6 +89,7 @@ export async function updateSitting(
       menuDescription: data.menuDescription || null,
       maxSeats: data.maxSeats,
       pricePerSeat: data.pricePerSeat,
+      paymentReference: data.paymentReference || null,
     },
   });
 

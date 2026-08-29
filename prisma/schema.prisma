@@ -67,10 +67,12 @@ model Booking {
 
 /// Stjórnandi sem getur skráð sig inn á /admin.
 model AdminUser {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  passwordHash        String
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime  @default(now())
 }
 
 /// Stakur lykill/gildi stillingatafla — greiðsluupplýsingar o.fl. sem

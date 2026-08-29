@@ -1,9 +1,12 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
 
 const SESSION_COOKIE = "mk_admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // vika
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_MINUTES = 15;
 
 function getSecretKey() {
   const secret = process.env.SESSION_SECRET;
@@ -59,6 +62,32 @@ export async function getAdminSession(): Promise<AdminSession | null> {
   } catch {
     return null;
   }
+}
+
+// Læsir stjórnandaaðgangi tímabundið eftir margar rangar innskráningartilraunir,
+// til að hægja á brute-force-tilraunum til að giska á lykilorð.
+export function checkLoginLockout(admin: { lockedUntil: Date | null }) {
+  if (admin.lockedUntil && admin.lockedUntil > new Date()) {
+    const minutesLeft = Math.ceil((admin.lockedUntil.getTime() - Date.now()) / 60_000);
+    return { locked: true as const, minutesLeft };
+  }
+  return { locked: false as const };
+}
+
+export async function recordFailedLogin(adminId: string, currentAttempts: number) {
+  const attempts = currentAttempts + 1;
+  if (attempts >= MAX_LOGIN_ATTEMPTS) {
+    await prisma.adminUser.update({
+      where: { id: adminId },
+      data: { failedLoginAttempts: 0, lockedUntil: new Date(Date.now() + LOCKOUT_MINUTES * 60_000) },
+    });
+  } else {
+    await prisma.adminUser.update({ where: { id: adminId }, data: { failedLoginAttempts: attempts } });
+  }
+}
+
+export async function resetLoginAttempts(adminId: string) {
+  await prisma.adminUser.update({ where: { id: adminId }, data: { failedLoginAttempts: 0, lockedUntil: null } });
 }
 
 export async function requireAdminSession(): Promise<AdminSession> {

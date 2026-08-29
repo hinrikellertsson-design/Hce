@@ -1,8 +1,18 @@
 "use server";
 
 import { z } from "zod";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { sendBookingReceivedEmail, sendCancellationEmail } from "@/lib/email";
+
+const RATE_LIMIT_WINDOW_MINUTES = 10;
+const RATE_LIMIT_MAX_BOOKINGS = 3;
+
+async function getRequestIp() {
+  const hdrs = await headers();
+  const forwarded = hdrs.get("x-forwarded-for");
+  return forwarded?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || null;
+}
 
 const bookingSchema = z.object({
   sittingId: z.string().min(1),
@@ -29,6 +39,26 @@ export async function createBooking(
   _prevState: CreateBookingState,
   formData: FormData
 ): Promise<CreateBookingState> {
+  // Falin gildra fyrir vélmenni: venjulegir gestir sjá aldrei þennan reit,
+  // svo ef hann er útfylltur er þetta líklega sjálfvirk ruslsending.
+  const honeypot = String(formData.get("website") ?? "").trim();
+  if (honeypot) {
+    return { status: "success" };
+  }
+
+  const ip = await getRequestIp();
+  if (ip) {
+    const recentCount = await prisma.booking.count({
+      where: { ip, createdAt: { gte: new Date(Date.now() - RATE_LIMIT_WINDOW_MINUTES * 60_000) } },
+    });
+    if (recentCount >= RATE_LIMIT_MAX_BOOKINGS) {
+      return {
+        status: "error",
+        message: "Of margar bókanir hafa verið gerðar frá þessari nettengingu á stuttum tíma. Vinsamlegast reyndu aftur eftir smá stund.",
+      };
+    }
+  }
+
   const raw = {
     sittingId: formData.get("sittingId"),
     name: formData.get("name"),
@@ -79,6 +109,7 @@ export async function createBooking(
           phone: data.phone,
           partySize: data.partySize,
           notes: data.notes || null,
+          ip,
         },
         include: { sitting: true },
       });

@@ -5,7 +5,7 @@ import { updateSitting } from "@/app/actions/admin-sittings";
 import { SittingForm } from "@/components/sitting-form";
 import { formatKronur } from "@/lib/format";
 import { availableSeats, getBookedSeats } from "@/lib/sittings";
-import { CancelBookingButton, SendReminderButton, TogglePaidButton } from "./booking-actions";
+import { BookingRow } from "./booking-row";
 
 export const dynamic = "force-dynamic";
 
@@ -79,34 +79,7 @@ export default async function AdminSittingDetailPage({ params }: PageProps<"/adm
               </thead>
               <tbody className="divide-y divide-line">
                 {sitting.bookings.map((booking) => (
-                  <tr key={booking.id} className={booking.status === "CANCELLED" ? "opacity-50" : ""}>
-                    <td className="px-5 py-4 font-medium text-ink">{booking.name}</td>
-                    <td className="px-5 py-4 text-muted">{booking.email}</td>
-                    <td className="px-5 py-4 text-muted">{booking.phone}</td>
-                    <td className="px-5 py-4 text-muted">{booking.partySize}</td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                          booking.status === "CONFIRMED" ? "bg-green-100 text-green-800" : "bg-zinc-100 text-zinc-600"
-                        }`}
-                      >
-                        {booking.status === "CONFIRMED" ? "Staðfest" : "Afbókað"}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      {booking.status === "CONFIRMED" ? (
-                        <TogglePaidButton bookingId={booking.id} isPaid={booking.isPaid} />
-                      ) : (
-                        <span className="text-muted">—</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-xs text-muted">
-                      {booking.reminderSentAt ? "Send" : booking.status === "CONFIRMED" ? <SendReminderButton bookingId={booking.id} /> : "—"}
-                    </td>
-                    <td className="px-5 py-4 text-right text-xs">
-                      {booking.status === "CONFIRMED" && <CancelBookingButton bookingId={booking.id} />}
-                    </td>
-                  </tr>
+                  <BookingRow key={booking.id} booking={booking} />
                 ))}
               </tbody>
             </table>

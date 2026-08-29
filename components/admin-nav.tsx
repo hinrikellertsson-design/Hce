@@ -16,6 +16,9 @@ export function AdminNav({ email }: { email: string }) {
             <Link href="/admin/aefingar/ny" className="hover:text-ink">
               Ný æfing
             </Link>
+            <Link href="/admin/bokanir" className="hover:text-ink">
+              Bókanir
+            </Link>
             <Link href="/admin/stillingar" className="hover:text-ink">
               Stillingar
             </Link>

@@ -52,6 +52,12 @@ export function BookingForm({ sittingId, available }: { sittingId: string; avail
     <form action={formAction} className="space-y-5 rounded-2xl border border-line bg-white/60 p-6">
       <input type="hidden" name="sittingId" value={sittingId} />
 
+      {/* Falin gildra fyrir vélmenni — venjulegir gestir sjá þennan reit aldrei */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
+        <label htmlFor="website">Ekki fylla út þennan reit</label>
+        <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
       {state.status === "error" && state.message && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {state.message}

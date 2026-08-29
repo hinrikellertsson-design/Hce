@@ -1,14 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addDays, endOfDay, startOfDay } from "date-fns";
 import { prisma } from "@/lib/prisma";
-import { sendPaymentReminderEmail } from "@/lib/email";
+import { sendFinalPaymentReminderEmail, sendPaymentReminderEmail } from "@/lib/email";
 import { getSettings, SETTINGS_KEYS } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
-// Keyrt daglega af Vercel Cron (sjá vercel.json). Finnur æfingar sem eiga sér
-// stað eftir nákvæmlega viku og sendir staðfestingar-/greiðslupóst á allar
-// staðfestar bókanir sem eiga eftir að fá slíkan póst.
+const FIRST_REMINDER_DAYS_BEFORE = 7;
+const FINAL_REMINDER_DAYS_BEFORE = 2;
+
+function dateRange(daysFromNow: number) {
+  const target = addDays(new Date(), daysFromNow);
+  return { gte: startOfDay(target), lte: endOfDay(target) };
+}
+
+// Keyrt daglega af Vercel Cron (sjá vercel.json).
+// 1) Finnur æfingar sem eiga sér stað eftir nákvæmlega viku og sendir
+//    staðfestingar-/greiðslupóst á allar staðfestar bókanir sem eiga eftir
+//    að fá slíkan póst.
+// 2) Finnur æfingar sem eiga sér stað eftir nákvæmlega tvo daga og sendir
+//    lokaáminningu á bókanir sem eru enn ógreiddar þrátt fyrir að hafa fengið
+//    fyrri áminninguna.
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   const expected = `Bearer ${process.env.CRON_SECRET}`;
@@ -16,24 +28,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const target = addDays(new Date(), 7);
-  const rangeStart = startOfDay(target);
-  const rangeEnd = endOfDay(target);
+  const settings = await getSettings();
 
-  const sittings = await prisma.sitting.findMany({
-    where: { date: { gte: rangeStart, lte: rangeEnd } },
+  const firstSittings = await prisma.sitting.findMany({
+    where: { date: dateRange(FIRST_REMINDER_DAYS_BEFORE) },
     include: {
-      bookings: {
-        where: { status: "CONFIRMED", reminderSentAt: null },
-      },
+      bookings: { where: { status: "CONFIRMED", reminderSentAt: null } },
     },
   });
 
-  const settings = await getSettings();
-  let sentCount = 0;
+  let firstSentCount = 0;
   const errors: string[] = [];
 
-  for (const sitting of sittings) {
+  for (const sitting of firstSittings) {
     for (const booking of sitting.bookings) {
       try {
         await sendPaymentReminderEmail(
@@ -46,7 +53,7 @@ export async function GET(request: NextRequest) {
           settings[SETTINGS_KEYS.bankKennitala]
         );
         await prisma.booking.update({ where: { id: booking.id }, data: { reminderSentAt: new Date() } });
-        sentCount++;
+        firstSentCount++;
       } catch (err) {
         console.error(`[cron] Villa við sendingu áminningar fyrir bókun ${booking.id}:`, err);
         errors.push(booking.id);
@@ -54,9 +61,40 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  const finalSittings = await prisma.sitting.findMany({
+    where: { date: dateRange(FINAL_REMINDER_DAYS_BEFORE) },
+    include: {
+      bookings: {
+        where: { status: "CONFIRMED", isPaid: false, reminderSentAt: { not: null }, finalReminderSentAt: null },
+      },
+    },
+  });
+
+  let finalSentCount = 0;
+
+  for (const sitting of finalSittings) {
+    for (const booking of sitting.bookings) {
+      try {
+        await sendFinalPaymentReminderEmail(
+          sitting,
+          { id: booking.id, name: booking.name, partySize: booking.partySize, cancelToken: booking.cancelToken },
+          booking.email,
+          settings[SETTINGS_KEYS.bankAccount],
+          settings[SETTINGS_KEYS.bankAccountHolder],
+          settings[SETTINGS_KEYS.bankKennitala]
+        );
+        await prisma.booking.update({ where: { id: booking.id }, data: { finalReminderSentAt: new Date() } });
+        finalSentCount++;
+      } catch (err) {
+        console.error(`[cron] Villa við sendingu lokaáminningar fyrir bókun ${booking.id}:`, err);
+        errors.push(booking.id);
+      }
+    }
+  }
+
   return NextResponse.json({
-    sittingsChecked: sittings.length,
-    remindersSent: sentCount,
+    firstRemindersSent: firstSentCount,
+    finalRemindersSent: finalSentCount,
     failedBookingIds: errors,
   });
 }

@@ -6,6 +6,7 @@ import { SittingForm } from "@/components/sitting-form";
 import { formatKronur } from "@/lib/format";
 import { availableSeats, getBookedSeats } from "@/lib/sittings";
 import { BookingRow } from "./booking-row";
+import { NotifyWaitlistButton, RemoveWaitlistButton } from "./waitlist-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,10 @@ export default async function AdminSittingDetailPage({ params }: PageProps<"/adm
 
   const sitting = await prisma.sitting.findUnique({
     where: { id },
-    include: { bookings: { orderBy: { createdAt: "desc" } } },
+    include: {
+      bookings: { orderBy: { createdAt: "desc" } },
+      waitlist: { orderBy: { createdAt: "asc" } },
+    },
   });
   if (!sitting) notFound();
 
@@ -74,12 +78,52 @@ export default async function AdminSittingDetailPage({ params }: PageProps<"/adm
                   <th className="px-5 py-3 font-medium">Staða</th>
                   <th className="px-5 py-3 font-medium">Greitt</th>
                   <th className="px-5 py-3 font-medium">Áminning</th>
+                  <th className="px-5 py-3 font-medium">Lokaáminning</th>
                   <th className="px-5 py-3 font-medium"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
                 {sitting.bookings.map((booking) => (
                   <BookingRow key={booking.id} booking={booking} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section>
+        <h2 className="font-display text-lg text-ink">Biðlisti ({sitting.waitlist.length})</h2>
+        {sitting.waitlist.length === 0 ? (
+          <p className="mt-4 text-sm text-muted">Enginn á biðlista.</p>
+        ) : (
+          <div className="mt-4 overflow-x-auto rounded-2xl border border-line bg-white">
+            <table className="w-full min-w-[720px] text-left text-sm">
+              <thead className="border-b border-line text-xs uppercase tracking-wide text-muted">
+                <tr>
+                  <th className="px-5 py-3 font-medium">Nafn</th>
+                  <th className="px-5 py-3 font-medium">Netfang</th>
+                  <th className="px-5 py-3 font-medium">Sími</th>
+                  <th className="px-5 py-3 font-medium">Fjöldi</th>
+                  <th className="px-5 py-3 font-medium">Staða</th>
+                  <th className="px-5 py-3 font-medium"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {sitting.waitlist.map((entry) => (
+                  <tr key={entry.id}>
+                    <td className="px-5 py-4 font-medium text-ink">{entry.name}</td>
+                    <td className="px-5 py-4 text-muted">{entry.email}</td>
+                    <td className="px-5 py-4 text-muted">{entry.phone}</td>
+                    <td className="px-5 py-4 text-muted">{entry.partySize}</td>
+                    <td className="px-5 py-4 text-xs text-muted">{entry.notifiedAt ? "Tilkynnt" : "Óskráð"}</td>
+                    <td className="px-5 py-4 text-right text-xs">
+                      <div className="flex items-center justify-end gap-3">
+                        <NotifyWaitlistButton entryId={entry.id} />
+                        <RemoveWaitlistButton entryId={entry.id} />
+                      </div>
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>

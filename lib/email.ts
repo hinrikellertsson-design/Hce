@@ -153,3 +153,96 @@ export async function sendCancellationEmail(sitting: SittingInfo, booking: Booki
   );
   await sendEmail(to, `Bókun afbókuð — ${sitting.title}`, html);
 }
+
+export async function sendFinalPaymentReminderEmail(
+  sitting: SittingInfo,
+  booking: BookingInfo,
+  to: string,
+  bankAccount: string,
+  bankAccountHolder: string,
+  bankKennitala: string
+) {
+  const cancelUrl = `${getSiteUrl()}/bokun/${booking.cancelToken}/hafna`;
+  const bankHtml = bankAccount
+    ? `
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; background: #f7f3ec; border-radius: 6px;">
+        <tr><td style="padding: 10px 14px; color: #6b6558;">Reikningsnúmer</td><td style="padding: 10px 14px; text-align: right; font-weight: 600;">${bankAccount}</td></tr>
+        ${bankAccountHolder ? `<tr><td style="padding: 10px 14px; color: #6b6558;">Móttakandi</td><td style="padding: 10px 14px; text-align: right; font-weight: 600;">${bankAccountHolder}</td></tr>` : ""}
+        ${bankKennitala ? `<tr><td style="padding: 10px 14px; color: #6b6558;">Kennitala</td><td style="padding: 10px 14px; text-align: right; font-weight: 600;">${bankKennitala}</td></tr>` : ""}
+      </table>`
+    : "";
+  const html = wrapEmail(
+    "Áminning — greiðsla vantar",
+    `
+      <p>Sæl/l ${booking.name},</p>
+      <p>Viðburðurinn þinn er eftir aðeins tvo daga og við sjáum ekki enn að greiðsla hafi borist.</p>
+      ${sittingDetailsHtml(sitting, booking)}
+      ${bankHtml}
+      <p>Vinsamlegast gakktu frá greiðslu sem fyrst svo bókunin haldist.</p>
+      <p style="margin-top: 24px; font-size: 13px; color: #6b6558;">
+        Þarftu að afbóka? <a href="${cancelUrl}" style="color: #7a4b1f;">Smelltu hér til að afbóka</a>.
+      </p>
+    `
+  );
+  await sendEmail(to, `Áminning — greiðsla vantar — ${sitting.title}`, html);
+}
+
+type WaitlistEntryInfo = { name: string; partySize: number };
+
+export async function sendWaitlistJoinedEmail(sitting: SittingInfo, entry: WaitlistEntryInfo, to: string) {
+  const html = wrapEmail(
+    "Þú ert á biðlistanum",
+    `
+      <p>Sæl/l ${entry.name},</p>
+      <p>Þessi æfing er því miður fullbókuð núna, en við höfum skráð þig á biðlista fyrir ${entry.partySize} manns.</p>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+        <tr><td style="padding: 6px 0; color: #6b6558;">Viðburður</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${sitting.title}</td></tr>
+        <tr><td style="padding: 6px 0; color: #6b6558;">Dagsetning</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${formatDateLong(sitting.date)}</td></tr>
+      </table>
+      <p>Ef sæti losnar höfum við samband við þig í tölvupósti.</p>
+    `
+  );
+  await sendEmail(to, `Biðlisti — ${sitting.title}`, html);
+}
+
+export async function sendWaitlistSpotAvailableEmail(
+  sitting: SittingInfo,
+  entry: WaitlistEntryInfo,
+  to: string,
+  sittingId: string
+) {
+  const bookUrl = `${getSiteUrl()}/aefingar/${sittingId}`;
+  const html = wrapEmail(
+    "Sæti losnaði — bókaðu núna",
+    `
+      <p>Sæl/l ${entry.name},</p>
+      <p>Góðar fréttir! Sæti losnaði á æfingunni sem þú varst á biðlista fyrir.</p>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+        <tr><td style="padding: 6px 0; color: #6b6558;">Viðburður</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${sitting.title}</td></tr>
+        <tr><td style="padding: 6px 0; color: #6b6558;">Dagsetning</td><td style="padding: 6px 0; text-align: right; font-weight: 600;">${formatDateLong(sitting.date)}</td></tr>
+      </table>
+      <p>Sætin eru ekki tryggð fyrr en þú hefur bókað — við mælum með að bóka sem fyrst þar sem fleiri gætu verið á biðlistanum.</p>
+      <p style="margin-top: 24px;">
+        <a href="${bookUrl}" style="color: #7a4b1f; font-weight: 600;">Smelltu hér til að bóka</a>
+      </p>
+    `
+  );
+  await sendEmail(to, `Sæti laust — ${sitting.title}`, html);
+}
+
+export async function sendPasswordResetEmail(to: string, token: string) {
+  const resetUrl = `${getSiteUrl()}/admin/endurstilla/${token}`;
+  const html = wrapEmail(
+    "Endurstilla lykilorð",
+    `
+      <p>Beiðni um að endurstilla lykilorð stjórnandaaðgangs var móttekin.</p>
+      <p style="margin-top: 16px;">
+        <a href="${resetUrl}" style="color: #7a4b1f; font-weight: 600;">Smelltu hér til að velja nýtt lykilorð</a>
+      </p>
+      <p style="margin-top: 24px; font-size: 13px; color: #6b6558;">
+        Hlekkurinn rennur út eftir klukkustund. Ef þú baðst ekki um þetta getur þú hunsað þennan tölvupóst.
+      </p>
+    `
+  );
+  await sendEmail(to, "Endurstilla lykilorð — stjórnborð", html);
+}

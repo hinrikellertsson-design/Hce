@@ -40,42 +40,61 @@ model Sitting {
   updatedAt        DateTime      @updatedAt
 
   bookings Booking[]
+  waitlist WaitlistEntry[]
 
   @@index([date])
 }
 
 /// Bókun eins gests/hóps á tiltekinni æfingu.
 model Booking {
-  id             String        @id @default(cuid())
-  sittingId      String
-  sitting        Sitting       @relation(fields: [sittingId], references: [id], onDelete: Cascade)
-  name           String
-  email          String
-  phone          String
-  partySize      Int
-  notes          String?
-  status         BookingStatus @default(CONFIRMED)
-  isPaid         Boolean       @default(false)
-  cancelToken    String        @unique @default(cuid())
-  reminderSentAt DateTime?
-  ip             String? // notað til að takmarka fjölda bókana frá sömu nettengingu (spam-vörn)
-  marketingOptIn Boolean       @default(false) // gestur hakaði við "já takk" fyrir fréttabréf
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                  String        @id @default(cuid())
+  sittingId           String
+  sitting             Sitting       @relation(fields: [sittingId], references: [id], onDelete: Cascade)
+  name                String
+  email               String
+  phone               String
+  partySize           Int
+  notes               String?
+  status              BookingStatus @default(CONFIRMED)
+  isPaid              Boolean       @default(false)
+  cancelToken         String        @unique @default(cuid())
+  reminderSentAt      DateTime?
+  finalReminderSentAt DateTime? // seinni áminning ef ógreitt nálægt viðburði
+  ip                  String? // notað til að takmarka fjölda bókana frá sömu nettengingu (spam-vörn)
+  marketingOptIn      Boolean       @default(false) // gestur hakaði við "já takk" fyrir fréttabréf
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
   @@index([sittingId])
   @@index([email])
   @@index([ip, createdAt])
 }
 
+/// Gestur sem skráir sig á biðlista þegar æfing er fullbókuð.
+model WaitlistEntry {
+  id         String    @id @default(cuid())
+  sittingId  String
+  sitting    Sitting   @relation(fields: [sittingId], references: [id], onDelete: Cascade)
+  name       String
+  email      String
+  phone      String
+  partySize  Int
+  notifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([sittingId])
+}
+
 /// Stjórnandi sem getur skráð sig inn á /admin.
 model AdminUser {
-  id                  String    @id @default(cuid())
-  email               String    @unique
-  passwordHash        String
-  failedLoginAttempts Int       @default(0)
-  lockedUntil         DateTime?
-  createdAt           DateTime  @default(now())
+  id                     String    @id @default(cuid())
+  email                  String    @unique
+  passwordHash           String
+  failedLoginAttempts    Int       @default(0)
+  lockedUntil            DateTime?
+  passwordResetTokenHash String?
+  passwordResetExpiresAt DateTime?
+  createdAt              DateTime  @default(now())
 }
 
 /// Stakur lykill/gildi stillingatafla — greiðsluupplýsingar o.fl. sem

@@ -1,12 +1,14 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { randomBytes, createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 
 const SESSION_COOKIE = "mk_admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // vika
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
+const PASSWORD_RESET_TTL_MINUTES = 60;
 
 function getSecretKey() {
   const secret = process.env.SESSION_SECRET;
@@ -88,6 +90,43 @@ export async function recordFailedLogin(adminId: string, currentAttempts: number
 
 export async function resetLoginAttempts(adminId: string) {
   await prisma.adminUser.update({ where: { id: adminId }, data: { failedLoginAttempts: 0, lockedUntil: null } });
+}
+
+function hashResetToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+// Býr til slembinn endurstillingarhlekk fyrir lykilorð, geymir bara hash-að
+// gildi hans í gagnagrunni og skilar hráa tákninu til að setja í tölvupóstshlekk.
+export async function createPasswordResetToken(adminId: string) {
+  const token = randomBytes(32).toString("hex");
+  await prisma.adminUser.update({
+    where: { id: adminId },
+    data: {
+      passwordResetTokenHash: hashResetToken(token),
+      passwordResetExpiresAt: new Date(Date.now() + PASSWORD_RESET_TTL_MINUTES * 60_000),
+    },
+  });
+  return token;
+}
+
+export async function consumePasswordResetToken(token: string, newPasswordHash: string) {
+  const admin = await prisma.adminUser.findFirst({
+    where: { passwordResetTokenHash: hashResetToken(token), passwordResetExpiresAt: { gt: new Date() } },
+  });
+  if (!admin) return false;
+
+  await prisma.adminUser.update({
+    where: { id: admin.id },
+    data: {
+      passwordHash: newPasswordHash,
+      passwordResetTokenHash: null,
+      passwordResetExpiresAt: null,
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    },
+  });
+  return true;
 }
 
 export async function requireAdminSession(): Promise<AdminSession> {

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { formatDateLong, formatKronur, mealTypeLabel } from "@/lib/format";
 import { availableSeats, getBookedSeats } from "@/lib/sittings";
 import { BookingForm } from "./booking-form";
+import { WaitlistForm } from "./waitlist-form";
 
 export const dynamic = "force-dynamic";
 
@@ -56,12 +57,14 @@ export default async function SittingDetailPage({ params }: PageProps<"/aefingar
           </div>
 
           <div>
-            {canBook ? (
-              <BookingForm sittingId={sitting.id} available={available} />
-            ) : (
+            {!canBook ? (
               <div className="rounded-2xl border border-line bg-cream-muted p-6 text-center text-muted">
                 Þessi æfing er ekki lengur opin fyrir bókanir.
               </div>
+            ) : available > 0 ? (
+              <BookingForm sittingId={sitting.id} available={available} />
+            ) : (
+              <WaitlistForm sittingId={sitting.id} />
             )}
           </div>
         </div>

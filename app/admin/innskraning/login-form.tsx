@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import Link from "next/link";
 import { loginAdmin, type LoginState } from "@/app/actions/auth";
 
 const initialState: LoginState = { status: "idle" };
@@ -54,6 +55,11 @@ export function LoginForm() {
         />
       </div>
       <SubmitButton />
+      <p className="text-center text-sm">
+        <Link href="/admin/gleymt-lykilord" className="text-gold-dark hover:underline">
+          Gleymt lykilorð?
+        </Link>
+      </p>
     </form>
   );
 }

@@ -1,5 +1,5 @@
 # MK Bókanir
-
+1.2.3
 Bókunarkerfi fyrir hádegis- og kvöldverði á æfingum matreiðslu- og
 þjónustudeildar Menntaskólans í Kópavogi. Gestir bóka sig sjálfir á vefnum;
 starfsfólk stýrir hvaða æfingar eru í boði, hámarksfjölda sæta og verði, og

@@ -132,7 +132,6 @@ export function BookingForm({ sittingId, available }: { sittingId: string; avail
           name="notes"
           rows={3}
           className="mt-1.5 w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm outline-none focus:border-gold"
-          placeholder="T.d. ofnæmi eða sérþarfir"
         />
       </div>
 

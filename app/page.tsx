@@ -32,13 +32,13 @@ export default async function HomePage() {
         <section className="border-b border-line">
           <div className="mx-auto max-w-5xl px-6 py-24 sm:py-32">
             <p className="text-xs uppercase tracking-[0.25em] text-gold-dark">
-              Nemendaæfingar · Matreiðslu- og þjónustudeild
+              Nemendaæfingar · Matreiðslu og framreiðsludeild
             </p>
             <h1 className="font-display mt-4 max-w-2xl text-4xl leading-tight text-ink sm:text-5xl">
-              Njóttu máltíðar eldaðrar og framreiddrar af nemendum MK
+              Njóttu máltíðar eldaðrar og framreiddrar af nemendum Hótel og matvælaskólans
             </h1>
             <p className="mt-6 max-w-xl text-base text-muted sm:text-lg">
-              Á æfingum matreiðslu- og þjónustudeildarinnar bjóðum við hádegis-
+              Á æfingum Matreiðslu og framreiðsludeildarinnar bjóðum við hádegis-
               og kvöldverði opna almenningi. Bókaðu borð á örfáum mínútum —
               við sendum staðfestingu og greiðsluupplýsingar viku fyrir
               viðburðinn.

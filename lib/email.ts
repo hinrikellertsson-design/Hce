@@ -56,13 +56,13 @@ function wrapEmail(title: string, bodyHtml: string) {
   return `
   <div style="font-family: -apple-system, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
     <div style="background: #14110f; color: #f4ead9; padding: 28px 32px; border-radius: 8px 8px 0 0;">
-      <div style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.7;">MK · Matreiðslu- og þjónustudeild</div>
+      <div style="font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.7;">Hótel og matvælaskólinn · Matreiðslu og framreiðsludeild</div>
       <h1 style="margin: 8px 0 0; font-size: 22px; font-weight: 600;">${title}</h1>
     </div>
     <div style="border: 1px solid #e7e0d4; border-top: none; padding: 28px 32px; border-radius: 0 0 8px 8px;">
       ${bodyHtml}
       <p style="margin-top: 32px; font-size: 12px; color: #8a8578;">
-        Þessi tölvupóstur var sendur sjálfvirkt frá bókunarkerfi MK matreiðslu- og þjónustudeildar.
+        Þessi tölvupóstur var sendur sjálfvirkt frá bókunarkerfi Matreiðslu og framreiðsludeildar hjá Hótel og matvælaskólanum.
       </p>
     </div>
   </div>`;

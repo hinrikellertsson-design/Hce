@@ -5,9 +5,9 @@ export function SiteHeader() {
     <header className="border-b border-line bg-cream/95 backdrop-blur sticky top-0 z-40">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
         <Link href="/" className="flex flex-col leading-tight">
-          <span className="font-display text-lg tracking-tight text-ink">MK Nemendaeldhúsið</span>
+          <span className="font-display text-lg tracking-tight text-ink">Hótel og matvælaskólinn</span>
           <span className="text-[11px] uppercase tracking-[0.2em] text-muted">
-            Matreiðslu- og þjónustudeild
+            Matreiðslu og framreiðsludeild
           </span>
         </Link>
         <nav className="flex items-center gap-6 text-sm">

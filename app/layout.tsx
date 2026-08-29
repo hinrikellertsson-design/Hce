@@ -14,9 +14,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Bókanir | MK Matreiðslu- og þjónustudeild",
+  title: "Bókanir | Hótel og matvælaskólinn",
   description:
-    "Bókaðu borð á æfingum matreiðslu- og þjónustudeildar Menntaskólans í Kópavogi — hádegis- og kvöldverðir nemenda.",
+    "Bókaðu borð á æfingum Matreiðslu og framreiðsludeildar hjá Hótel og matvælaskólanum — hádegis- og kvöldverðir nemenda.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

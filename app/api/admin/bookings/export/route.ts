@@ -6,10 +6,14 @@ import { formatDateShort, mealTypeLabel } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 function csvEscape(value: string) {
-  if (/[",\n;]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
+  // Forðumst "formula injection": ef gildi byrjar á =, +, -, @ (eða tab/CR)
+  // getur Excel/Sheets túlkað það sem formúlu þegar skráin er opnuð. Forskeytum
+  // með ' svo innihaldið sé alltaf lesið sem hreinn texti.
+  const safe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+  if (/[",\n;]/.test(safe)) {
+    return `"${safe.replace(/"/g, '""')}"`;
   }
-  return value;
+  return safe;
 }
 
 export async function GET(request: NextRequest) {

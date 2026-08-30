@@ -10,7 +10,7 @@ const sittingSchema = z.object({
   mealType: z.enum(["LUNCH", "DINNER"]),
   title: z.string().trim().min(2, "Titill vantar").max(160),
   menuDescription: z.string().trim().max(2000).optional().or(z.literal("")),
-  maxSeats: z.coerce.number().int().min(1, "Þarf að vera a.m.k. 1").max(1000),
+  maxSeats: z.coerce.number().int().min(0, "Má ekki vera neikvætt").max(1000),
   pricePerSeat: z.coerce.number().int().min(0, "Verð má ekki vera neikvætt"),
   paymentReference: z.string().trim().max(40).optional().or(z.literal("")),
 });

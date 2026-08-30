@@ -108,11 +108,14 @@ export function SittingForm({
             id="maxSeats"
             name="maxSeats"
             type="number"
-            min={1}
+            min={0}
             required
             defaultValue={defaults?.maxSeats}
             className="mt-1.5 w-full rounded-lg border border-line px-3.5 py-2.5 text-sm outline-none focus:border-gold"
           />
+          <p className="mt-1 text-xs text-muted">
+            Settu 0 ef æfingin á að vera lokuð fyrir bókun strax en birta biðlista fyrir gesti.
+          </p>
           {state.fieldErrors?.maxSeats && (
             <p className="mt-1 text-xs text-red-600">{state.fieldErrors.maxSeats}</p>
           )}

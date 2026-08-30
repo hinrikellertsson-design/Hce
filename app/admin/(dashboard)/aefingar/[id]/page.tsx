@@ -6,6 +6,7 @@ import { SittingForm } from "@/components/sitting-form";
 import { formatKronur } from "@/lib/format";
 import { availableSeats, getBookedSeats } from "@/lib/sittings";
 import { BookingRow } from "./booking-row";
+import { ManualBookingForm } from "./manual-booking-form";
 import { NotifyWaitlistButton, RemoveWaitlistButton } from "./waitlist-actions";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +60,16 @@ export default async function AdminSittingDetailPage({ params }: PageProps<"/adm
               paymentReference: sitting.paymentReference ?? "",
             }}
           />
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-lg text-ink">Skrá bókun handvirkt</h2>
+        <p className="mt-1 text-sm text-muted">
+          Fyrir bókanir sem berast símleiðis eða í tölvupósti.
+        </p>
+        <div className="mt-4">
+          <ManualBookingForm sittingId={sitting.id} />
         </div>
       </section>
 

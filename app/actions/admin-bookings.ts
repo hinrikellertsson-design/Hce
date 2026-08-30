@@ -4,8 +4,114 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/auth";
-import { sendCancellationEmail, sendFinalPaymentReminderEmail, sendPaymentReminderEmail } from "@/lib/email";
+import {
+  sendBookingReceivedEmail,
+  sendCancellationEmail,
+  sendFinalPaymentReminderEmail,
+  sendPaymentReminderEmail,
+} from "@/lib/email";
 import { getSettings, SETTINGS_KEYS } from "@/lib/settings";
+
+const manualBookingSchema = z.object({
+  name: z.string().trim().min(2, "Nafn þarf að vera a.m.k. 2 stafir").max(120),
+  email: z.string().trim().email("Ógilt netfang"),
+  phone: z.string().trim().min(7, "Símanúmer virðist of stutt").max(20),
+  partySize: z.coerce.number().int().min(1, "Fjöldi verður að vera a.m.k. 1").max(50),
+  notes: z.string().trim().max(500).optional().or(z.literal("")),
+  sendConfirmation: z.coerce.boolean().optional(),
+});
+
+export type ManualBookingState = {
+  status: "idle" | "error" | "success";
+  message?: string;
+  fieldErrors?: Partial<Record<keyof z.infer<typeof manualBookingSchema>, string>>;
+};
+
+export async function createBookingManually(
+  sittingId: string,
+  _prevState: ManualBookingState,
+  formData: FormData
+): Promise<ManualBookingState> {
+  await requireAdminSession();
+
+  const parsed = manualBookingSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    phone: formData.get("phone"),
+    partySize: formData.get("partySize"),
+    notes: formData.get("notes") ?? "",
+    sendConfirmation: formData.get("sendConfirmation"),
+  });
+
+  if (!parsed.success) {
+    const fieldErrors: ManualBookingState["fieldErrors"] = {};
+    for (const issue of parsed.error.issues) {
+      const key = issue.path[0] as keyof z.infer<typeof manualBookingSchema>;
+      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
+    return { status: "error", message: "Vinsamlegast leiðréttið villurnar hér að neðan.", fieldErrors };
+  }
+
+  const data = parsed.data;
+
+  try {
+    const booking = await prisma.$transaction(async (tx) => {
+      const sitting = await tx.sitting.findUnique({ where: { id: sittingId } });
+      if (!sitting) {
+        throw new Error("SITTING_NOT_FOUND");
+      }
+
+      // Sama læsing og í almenna bókunarflæðinu svo handvirk skráning geti
+      // ekki farið yfir hámark ef bókun berst samtímis á vefnum.
+      await tx.$queryRaw`SELECT id FROM "Sitting" WHERE id = ${sitting.id} FOR UPDATE`;
+
+      const bookedAgg = await tx.booking.aggregate({
+        where: { sittingId: sitting.id, status: "CONFIRMED" },
+        _sum: { partySize: true },
+      });
+      const booked = bookedAgg._sum.partySize ?? 0;
+      const available = sitting.maxSeats - booked;
+
+      if (data.partySize > available) {
+        throw new Error(`NOT_ENOUGH_SEATS:${available}`);
+      }
+
+      return tx.booking.create({
+        data: {
+          sittingId: sitting.id,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          partySize: data.partySize,
+          notes: data.notes || null,
+        },
+        include: { sitting: true },
+      });
+    });
+
+    if (data.sendConfirmation) {
+      await sendBookingReceivedEmail(
+        booking.sitting,
+        { id: booking.id, name: booking.name, partySize: booking.partySize, cancelToken: booking.cancelToken },
+        booking.email
+      );
+    }
+
+    revalidatePath(`/admin/aefingar/${sittingId}`);
+    revalidatePath("/admin/bokanir");
+    return { status: "success", message: "Bókun skráð." };
+  } catch (err) {
+    if (err instanceof Error && err.message.startsWith("NOT_ENOUGH_SEATS:")) {
+      const available = err.message.split(":")[1];
+      return {
+        status: "error",
+        message: available === "0" ? "Engin sæti laus á þessa æfingu." : `Aðeins ${available} sæti laus á þessa æfingu.`,
+      };
+    }
+    console.error("[createBookingManually] villa:", err);
+    return { status: "error", message: "Eitthvað fór úrskeiðis." };
+  }
+}
 
 const bookingEditSchema = z.object({
   name: z.string().trim().min(2, "Nafn þarf að vera a.m.k. 2 stafir").max(120),

@@ -85,6 +85,14 @@ model WaitlistEntry {
   @@index([sittingId])
 }
 
+/// Netfang sem er skráð beint á póstlista, óháð bókun (t.d. eftir símtal).
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
 /// Stjórnandi sem getur skráð sig inn á /admin.
 model AdminUser {
   id                     String    @id @default(cuid())

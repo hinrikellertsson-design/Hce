@@ -3,6 +3,7 @@ name: Deploy MK 30 ára síðu
 on:
   push:
     branches:
+      - main
       - claude/artifact-session-furvf3
     paths:
       - "microsites/mk-30-ara/**"

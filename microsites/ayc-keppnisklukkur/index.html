@@ -69,6 +69,30 @@
     letter-spacing:0.04em;
   }
 
+  #startAllBtn{
+    font-family:"Work Sans", sans-serif;
+    font-weight:700;
+    font-size:clamp(0.8rem, 1.6vw, 1rem);
+    letter-spacing:0.03em;
+    padding:clamp(8px,1vh,12px) clamp(16px,2vw,26px);
+    border-radius:10px;
+    border:1px solid var(--gold);
+    background:var(--gold);
+    color:#241a05;
+    cursor:pointer;
+    transition:background 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+  }
+  #startAllBtn:hover{background:#f0c869;}
+  #startAllBtn:active{transform:scale(0.97);}
+  #startAllBtn:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  #startAllBtn[disabled]{
+    background:transparent;
+    color:var(--muted);
+    border-color:var(--panel-edge);
+    cursor:default;
+    opacity:0.7;
+  }
+
   main{
     flex:1 1 auto;
     min-height:0;
@@ -212,6 +236,7 @@
     <span class="ayc">AYC</span>
     <span class="sub">Keppnisklukkur</span>
   </div>
+  <button type="button" id="startAllBtn">Byrja allar klukkur</button>
   <div class="clock-of-day" id="clockOfDay">--:--:--</div>
 </header>
 
@@ -330,12 +355,17 @@
         t.remainingMs = t.targetEnd - Date.now();
         t.running = false;
         t.targetEnd = null;
+        persist();
+        render(t);
+      } else if (t.remainingMs === t.duration){
+        // Ekki ræst áður: ræsa allar klukkur sem enn eru ósnertar, allar á sama augnabliki.
+        startAll();
       } else {
         t.targetEnd = Date.now() + t.remainingMs;
         t.running = true;
+        persist();
+        render(t);
       }
-      persist();
-      render(t);
     });
 
     resetBtn.addEventListener("click", function(){
@@ -381,7 +411,35 @@
 
     t.el.toggleBtn.classList.toggle("is-pause", t.running);
     t.el.toggleBtn.textContent = t.running ? "Hlé" : (ms === t.duration ? "Byrja" : "Halda áfram");
+
+    updateStartAllBtn();
   }
+
+  var startAllBtn = document.getElementById("startAllBtn");
+
+  function startAll(){
+    var now = Date.now();
+    var startedAny = false;
+    timers.forEach(function(t){
+      if (!t.running && t.remainingMs === t.duration){
+        t.targetEnd = now + t.remainingMs;
+        t.running = true;
+        startedAny = true;
+      }
+    });
+    if (startedAny){
+      persist();
+      timers.forEach(render);
+    }
+  }
+
+  function updateStartAllBtn(){
+    var anyIdle = timers.some(function(t){ return !t.running && t.remainingMs === t.duration; });
+    startAllBtn.disabled = !anyIdle;
+    startAllBtn.textContent = anyIdle ? "Byrja allar klukkur" : "Allar klukkur ræstar";
+  }
+
+  startAllBtn.addEventListener("click", startAll);
 
   timers.forEach(buildPanel);
   timers.forEach(render);

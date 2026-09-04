@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keppnisklukkur AYC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#050f1f;
+    --bg-1:#0a1c38;
+    --panel:#0e2542;
+    --panel-edge:rgba(231,185,76,0.16);
+    --gold:#e7b94c;
+    --gold-soft:#c99c34;
+    --ice:#f3efe3;
+    --muted:#7d93b8;
+    --overtime:#e2472b;
+    --overtime-soft:rgba(226,71,43,0.14);
+    --focus:#f3efe3;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100dvh;
+    background:
+      radial-gradient(ellipse 90% 60% at 15% 0%, #123262 0%, transparent 60%),
+      radial-gradient(ellipse 80% 55% at 100% 100%, #0f2847 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+    color:var(--ice);
+    font-family:"Work Sans", ui-sans-serif, system-ui, sans-serif;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  header{
+    flex:0 0 auto;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    padding:clamp(10px,1.6vh,20px) clamp(16px,2.4vw,32px) 0;
+  }
+  .wordmark{
+    display:flex;
+    align-items:baseline;
+    gap:0.6em;
+  }
+  .wordmark .ayc{
+    font-family:"Bebas Neue", "Work Sans", sans-serif;
+    font-size:clamp(20px,2.6vh,30px);
+    letter-spacing:0.08em;
+    color:var(--gold);
+  }
+  .wordmark .sub{
+    font-size:clamp(11px,1.3vh,14px);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .clock-of-day{
+    font-variant-numeric:tabular-nums;
+    font-size:clamp(13px,1.5vh,16px);
+    color:var(--muted);
+    letter-spacing:0.04em;
+  }
+
+  main{
+    flex:1 1 auto;
+    min-height:0;
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:clamp(10px,1.4vw,20px);
+    padding:clamp(10px,1.6vh,20px) clamp(16px,2.4vw,32px) clamp(14px,2vh,28px);
+  }
+  @media (orientation:portrait){
+    main{grid-template-columns:1fr; grid-template-rows:repeat(3,1fr);}
+  }
+
+  .panel{
+    container-type:inline-size;
+    min-width:0;
+    min-height:0;
+    background:linear-gradient(180deg, var(--panel) 0%, #0a1d38 100%);
+    border:1px solid var(--panel-edge);
+    border-radius:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    padding:clamp(10px,2cqw,26px) clamp(8px,3cqw,20px);
+    position:relative;
+    overflow:hidden;
+  }
+  .panel::before{
+    content:"";
+    position:absolute;
+    inset:0 0 auto 0;
+    height:3px;
+    background:linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+    opacity:0.55;
+  }
+
+  .panel .name{
+    font-family:"Bebas Neue", sans-serif;
+    font-size:clamp(1.1rem, 6.4cqw, 2.6rem);
+    letter-spacing:0.03em;
+    text-align:center;
+    color:var(--ice);
+    text-wrap:balance;
+    line-height:1.05;
+  }
+
+  .panel .status{
+    font-size:clamp(0.6rem, 2.6cqw, 0.85rem);
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:0.3em;
+  }
+  .panel[data-phase="overtime"] .status,
+  .panel[data-phase="overtime-paused"] .status{
+    color:var(--overtime);
+  }
+
+  .digits{
+    font-family:"Bebas Neue", sans-serif;
+    font-variant-numeric:tabular-nums;
+    font-size:clamp(2.2rem, 19cqw, 13rem);
+    line-height:1;
+    letter-spacing:0.01em;
+    color:var(--gold);
+    text-align:center;
+    text-shadow:0 0 clamp(10px,2vw,46px) rgba(231,185,76,0.28);
+    transition:color 0.25s ease;
+  }
+  .panel[data-phase="idle"] .digits{color:var(--ice); text-shadow:none;}
+  .panel[data-phase="paused"] .digits{color:var(--muted); text-shadow:none;}
+  .panel[data-phase="overtime"] .digits{
+    color:var(--overtime);
+    text-shadow:0 0 clamp(10px,2vw,46px) rgba(226,71,43,0.35);
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  .panel[data-phase="overtime-paused"] .digits{
+    color:var(--overtime);
+    text-shadow:none;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .panel[data-phase="overtime"] .digits{animation:none;}
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:0.72;}
+  }
+
+  .duration-note{
+    font-size:clamp(0.6rem, 2.2cqw, 0.8rem);
+    color:var(--muted);
+    letter-spacing:0.04em;
+  }
+
+  .controls{
+    display:flex;
+    gap:clamp(6px,1.6cqw,12px);
+    width:100%;
+    justify-content:center;
+  }
+  .controls button{
+    flex:1 1 0;
+    max-width:9.5rem;
+    font-family:"Work Sans", sans-serif;
+    font-weight:600;
+    font-size:clamp(0.7rem, 2.8cqw, 0.95rem);
+    letter-spacing:0.03em;
+    padding:clamp(8px,1.6cqw,14px) 4px;
+    border-radius:10px;
+    border:1px solid var(--panel-edge);
+    background:rgba(255,255,255,0.02);
+    color:var(--ice);
+    cursor:pointer;
+    transition:background 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
+  }
+  .controls button:hover{background:rgba(255,255,255,0.06);}
+  .controls button:active{transform:scale(0.97);}
+  .controls button:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+
+  .controls button.primary{
+    background:var(--gold);
+    color:#241a05;
+    border-color:var(--gold);
+  }
+  .controls button.primary:hover{background:#f0c869;}
+  .controls button.primary.is-pause{
+    background:transparent;
+    color:var(--gold);
+  }
+  .controls button.primary.is-pause:hover{background:rgba(231,185,76,0.12);}
+
+  .controls button.reset{
+    color:var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">
+    <span class="ayc">AYC</span>
+    <span class="sub">Keppnisklukkur</span>
+  </div>
+  <div class="clock-of-day" id="clockOfDay">--:--:--</div>
+</header>
+
+<main id="panels"></main>
+
+<script>
+(function(){
+  "use strict";
+
+  var TIMERS = [
+    { id:"forrettur",  name:"Forréttur",              duration: (2*3600+30*60)*1000 },
+    { id:"adalrettur", name:"Aðalréttur",              duration: (3*3600+ 5*60)*1000 },
+    { id:"threif",     name:"Þrif á eldhúsi klár",     duration: (3*3600+20*60)*1000 }
+  ];
+
+  var STORE_KEY = "ayc-keppnisklukkur-v1";
+
+  function loadStore(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    }catch(e){ return {}; }
+  }
+  function saveStore(store){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch(e){}
+  }
+
+  var store = loadStore();
+
+  var panelsEl = document.getElementById("panels");
+  var timers = TIMERS.map(function(cfg){
+    var saved = store[cfg.id] || {};
+    var state = {
+      id: cfg.id,
+      name: cfg.name,
+      duration: cfg.duration,
+      running: !!saved.running,
+      targetEnd: typeof saved.targetEnd === "number" ? saved.targetEnd : null,
+      remainingMs: typeof saved.remainingMs === "number" ? saved.remainingMs : cfg.duration
+    };
+    return state;
+  });
+
+  function persist(){
+    var out = {};
+    timers.forEach(function(t){
+      out[t.id] = { running:t.running, targetEnd:t.targetEnd, remainingMs:t.remainingMs };
+    });
+    saveStore(out);
+  }
+
+  function fmt(ms){
+    var sign = ms < 0 ? "+" : "";
+    var abs = Math.abs(Math.round(ms/1000));
+    var h = Math.floor(abs/3600);
+    var m = Math.floor((abs%3600)/60);
+    var s = abs%60;
+    function pad(n){ return n < 10 ? "0"+n : ""+n; }
+    return sign + h + ":" + pad(m) + ":" + pad(s);
+  }
+
+  function fmtDuration(ms){
+    var totalMin = Math.round(ms/60000);
+    var h = Math.floor(totalMin/60);
+    var m = totalMin%60;
+    if (h && m) return h + " klst " + m + " mín";
+    if (h) return h + " klst";
+    return m + " mín";
+  }
+
+  function buildPanel(t){
+    var panel = document.createElement("section");
+    panel.className = "panel";
+    panel.dataset.phase = "idle";
+
+    var name = document.createElement("div");
+    name.className = "name";
+    name.textContent = t.name;
+
+    var status = document.createElement("div");
+    status.className = "status";
+
+    var digits = document.createElement("div");
+    digits.className = "digits";
+
+    var note = document.createElement("div");
+    note.className = "duration-note";
+    note.textContent = "Ræst tímalengd: " + fmtDuration(t.duration);
+
+    var controls = document.createElement("div");
+    controls.className = "controls";
+
+    var toggleBtn = document.createElement("button");
+    toggleBtn.className = "primary";
+    toggleBtn.type = "button";
+
+    var resetBtn = document.createElement("button");
+    resetBtn.className = "reset";
+    resetBtn.type = "button";
+    resetBtn.textContent = "Núllstilla";
+
+    controls.appendChild(toggleBtn);
+    controls.appendChild(resetBtn);
+
+    panel.appendChild(name);
+    panel.appendChild(status);
+    panel.appendChild(digits);
+    panel.appendChild(note);
+    panel.appendChild(controls);
+    panelsEl.appendChild(panel);
+
+    t.el = { panel:panel, status:status, digits:digits, toggleBtn:toggleBtn };
+
+    toggleBtn.addEventListener("click", function(){
+      if (t.running){
+        t.remainingMs = t.targetEnd - Date.now();
+        t.running = false;
+        t.targetEnd = null;
+      } else {
+        t.targetEnd = Date.now() + t.remainingMs;
+        t.running = true;
+      }
+      persist();
+      render(t);
+    });
+
+    resetBtn.addEventListener("click", function(){
+      if (t.running || t.remainingMs !== t.duration){
+        if (!window.confirm("Núllstilla \"" + t.name + "\" í " + fmtDuration(t.duration) + "?")) return;
+      }
+      t.running = false;
+      t.targetEnd = null;
+      t.remainingMs = t.duration;
+      persist();
+      render(t);
+    });
+  }
+
+  function render(t){
+    var ms;
+    if (t.running){
+      ms = t.targetEnd - Date.now();
+    } else {
+      ms = t.remainingMs;
+    }
+
+    var overtime = ms < 0;
+    var phase;
+    if (t.running){
+      phase = overtime ? "overtime" : "running";
+    } else if (ms === t.duration){
+      phase = "idle";
+    } else {
+      phase = overtime ? "overtime-paused" : "paused";
+    }
+    t.el.panel.dataset.phase = phase;
+
+    t.el.digits.textContent = fmt(ms);
+
+    var statusText;
+    if (phase === "idle") statusText = "Tilbúið";
+    else if (phase === "running") statusText = "Eftir";
+    else if (phase === "paused") statusText = "Í bið";
+    else if (phase === "overtime") statusText = "Umfram tíma";
+    else statusText = "Umfram tíma · í bið";
+    t.el.status.textContent = statusText;
+
+    t.el.toggleBtn.classList.toggle("is-pause", t.running);
+    t.el.toggleBtn.textContent = t.running ? "Hlé" : (ms === t.duration ? "Byrja" : "Halda áfram");
+  }
+
+  timers.forEach(buildPanel);
+  timers.forEach(render);
+
+  function tick(){
+    timers.forEach(function(t){ if (t.running) render(t); });
+    window.requestAnimationFrame(tick);
+  }
+  window.requestAnimationFrame(tick);
+
+  var clockEl = document.getElementById("clockOfDay");
+  function tickClock(){
+    var d = new Date();
+    function pad(n){ return n < 10 ? "0"+n : ""+n; }
+    clockEl.textContent = pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  window.addEventListener("beforeunload", persist);
+})();
+</script>
+</body>
+</html>
